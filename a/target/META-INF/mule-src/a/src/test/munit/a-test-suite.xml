@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<munit:config name="a-test-suite.xml" />
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="9972e0b4-e2df-4241-b0c8-4b64a533f735" />
+	<munit:test name="a-test-suite-aFlowTest" doc:id="ea7cfa5e-c6bc-475a-9442-36d67053b907" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to aFlow" doc:id="48d23c6d-b0d8-4a9d-bd29-154ecc3e688a" name="aFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<validation:is-null doc:name="Is null" doc:id="d931e9df-145d-4b00-9130-18c2c6b705d7" config-ref="Validation_Config" value='#["is not null"]' message="test failed"/>
+		</munit:validation>
+	</munit:test>
+
+</mule>

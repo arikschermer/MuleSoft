@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6944f60b-6c08-451f-8b40-4e7039ff1347" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<sqs:config name="Amazon_SQS_Configuration" doc:name="Amazon SQS Configuration" doc:id="5099246b-544a-4584-89a6-07ad6101ef10" >
+		<sqs:role-connection roleARN="arn:aws:iam::933794580186:role/mulesoft_local" testQueueArn="arn:aws:sqs:us-east-1:933794580186:int-local-proto-request.fifo" accessKey="AKIA5S2T6Q3NKDEMMUMM" secretKey="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" />
+	</sqs:config>
+	<flow name="aFlow" doc:id="1da97fbd-a75f-4089-bee6-50cef48f88a3" >
+		<http:listener doc:name="Listener" doc:id="4c3baf9b-ce49-41ed-adcc-353a8d237ae8" config-ref="HTTP_Listener_config" path="/send"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d268aaaf-455e-4a53-a23c-35e1df00f773" message='#["preparing to send message"]'/>
+		<ee:transform doc:name="Transform Message" doc:id="d91ce027-1ea8-482a-bab9-e21bdeaac967" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	delaySeconds: 0,
+	groupId: "prototype",
+	deduplicationId: correlationId,
+	body: write (payload, "application/json"),
+	
+} as Object {
+	class: "org.mule.extension.sqs.api.model.Message"
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sqs:send-message doc:name="Send message" doc:id="c04ca28f-2d79-47fc-946a-3ff49b194e78" config-ref="Amazon_SQS_Configuration" queueUrl="https://sqs.us-east-1.amazonaws.com/933794580186/int-local-proto-request.fifo"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c3782db8-49e1-4a24-ac12-787c37197e05" message='#["message sent"]'/>
+	</flow>
+</mule>
